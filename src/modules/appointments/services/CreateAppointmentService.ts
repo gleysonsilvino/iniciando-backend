@@ -1,34 +1,30 @@
 /* eslint-disable camelcase */
 import { startOfHour } from 'date-fns';
-import { getCustomRepository } from 'typeorm';
 
 import AppError from '@shared/errors/AppError';
-import Appointment from '../infra/typeorm/entities/Appointment';
-import AppointmentsRepository from '../repositories/AppointmentsRepository';
 
-interface Request {
+import Appointment from '../infra/typeorm/entities/Appointment';
+import IAppointmentsRepository from '../repositories/IAppointmentsRepository';
+
+interface IRequest {
   provider_id: string;
   date: Date;
 }
 
-// Service não tem acesso aos dados da requisição.
 // (SOLID)
 // Single Resposability Principle
 // Dependency Invertion Principle
+// Liskov Substitution Priciple
+// Open Closed Priciple
+// Interface Segregation Principle
 
 class CreateAppointmentService {
-  // private appointmentsRepository: AppointmentsRepository;
+  constructor(private appointmentsRepository: IAppointmentsRepository) {}
 
-  // constructor(appointmentsRepository: AppointmentsRepository) {
-  //   this.appointmentsRepository = appointmentsRepository;
-  // }
-
-  public async execute({ provider_id, date }: Request): Promise<Appointment> {
-    const appointmentsRepository = getCustomRepository(AppointmentsRepository);
-
+  public async execute({ provider_id, date }: IRequest): Promise<Appointment> {
     const appointmentDate = startOfHour(date);
 
-    const findAppointmentInSameDate = await appointmentsRepository.findDate(
+    const findAppointmentInSameDate = await this.appointmentsRepository.findByDate(
       appointmentDate,
     );
 
@@ -36,12 +32,10 @@ class CreateAppointmentService {
       throw new AppError('This appointment alredy booked');
     }
 
-    const appointment = appointmentsRepository.create({
+    const appointment = await this.appointmentsRepository.create({
       provider_id,
       date: appointmentDate,
     });
-
-    await appointmentsRepository.save(appointment);
 
     return appointment;
   }
