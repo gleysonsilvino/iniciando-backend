@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 import AppError from '@shared/errors/AppError';
 
 import { inject, injectable } from 'tsyringe';
