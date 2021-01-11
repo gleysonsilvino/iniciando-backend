@@ -55,9 +55,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         port: ${{ secrets.SSH_PORT }}
         key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd ~/app/gobarber 
-          ./node_modules/.bin/typeorm migration:run
+        script: ./node_modules/.bin/typeorm migration:run
           
     # Restart no servidor Node.js
     - name: Restart app
